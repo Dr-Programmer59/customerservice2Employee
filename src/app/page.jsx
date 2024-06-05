@@ -8,7 +8,7 @@ import { storage } from '@/components/firebase';
 
 import { ref, uploadBytesResumable, getDownloadURL } from "firebase/storage";
 import { createConversation, getAdminConversation, getConversation, getEmployeeConversation, getMessages, newMessages } from '@/components/service/api';
-
+import { v4 as uuidv4 } from 'uuid';
 
 
 
@@ -31,9 +31,22 @@ function page() {
   const [showchat, setshowchat] = useState(false)
   const [currentConversation, setcurrentConversation] = useState({})
   const audioRef = useRef(null);
+const [recordingDelete, setrecordingDelete] = useState(false)
+  useEffect(() => {
+    console.log(user)
+    socket.emit("new-connection", { userId:user._id,name: user.name, socketId: socket.id, role: user.role })
+  }, [])
   const sortByRecentUpdate = (array) => {
     return array.sort((a, b) => new Date(b.updatedAt) - new Date(a.updatedAt));
   };
+
+
+  useEffect(() => {
+    socket.emit("")
+  
+    
+  }, [])
+  
   const fetchContacts=async ()=>{
     let conversationdata=await getEmployeeConversation(user._id);
     console.log("the conversation data ",conversationdata)
@@ -49,7 +62,7 @@ function page() {
           }
           if(checknewmsg){
 
-          
+          socket.emit("join-room:employee",{roomId:val.roomId._id})
           customerData.push({customerId:val.roomId._id,customerNumber:val.roomId.phone,lastmsg:val.message,employeeId: val.employeeId})
           }
           else{
@@ -64,9 +77,10 @@ function page() {
     })
     setcustomerNumbers(customerData);
   }
+
   useEffect(() => {
 
-  
+
     fetchContacts();
 
    
@@ -78,7 +92,8 @@ function page() {
   
   const handleUploadAudio = (blob) => {
     if (blob) {
-      const file = new File([blob], 'audio.wav', { type: 'audio/wav' });
+      const randomId = uuidv4();;
+      const file = new File([blob], `${randomId}.wav`, { type: 'audio/wav' });
       const storageRef = ref(storage, `audio/${file.name}`);
       const uploadTask = uploadBytesResumable(storageRef, file);
 
@@ -126,7 +141,19 @@ function page() {
       );
     }
   };
-
+  useEffect(() => {
+    
+    if(recordingDelete){
+     console.log("this is delte recording delete1",recordingDelete)
+     setRecording(false);
+     mediaRecorder.current=null;
+    setTimeout(() => {
+      setrecordingDelete(false)
+    }, 2000);
+   
+    }
+    
+  }, [recordingDelete])
   const startRecording = async () => {
     try {
       if (recording == false) {
@@ -196,9 +223,9 @@ function page() {
     setChatOpen(true);
     const key = e.target.getAttribute('data-key');
     setcurrentCustomer(key)
-    console.log("this is working as fuck")
+   
     const data =await getConversation({ roomId: key })
-    console.log("the data is ",data)
+  
     setcurrentConversation(data)
     const messagedata=await getMessages(data._id)
     setmessages([...messagedata])
@@ -209,14 +236,15 @@ function page() {
             delete val["show"]
           }
       })
-
+      
       return prev
     })
 
   }
   const handleUpload = () => {
     if (imageSrc) {
-      const storageRef = ref(storage, `images/${imageSrc.name}`);
+      const randomId = uuidv4();;
+      const storageRef = ref(storage, `images/${randomId}-${imageSrc.name}`);
       const uploadTask = uploadBytesResumable(storageRef, imageSrc);
 
       uploadTask.on(
@@ -286,11 +314,17 @@ function page() {
 
 
     }
+    setmessage("")
+    setImageSrc(null)
   }
   useEffect(() => {
     socket.on("new-request:customer", handleNewCustomer)
     socket.on("waiting-customer", handleWaitingCustomer)
     socket.on("receive-msg", handleReceiveMessage)
+    socket.on("newCustomer:employee",async(data)=>{
+      console.log("fetching data again ")
+      await fetchContacts();
+    })
     return () => {
 
       socket.off("new-request:customer", handleNewCustomer)
@@ -358,7 +392,7 @@ function page() {
       
           {
             Object.keys(currentConversation).length != 0?
-          messages && <MessageBox currentConversation={currentConversation} messages={messages} message={message} setmessage={setmessage} setChatOpen={setChatOpen} handleSendMessage={handleSendMessage} startRecording={startRecording} imageSrc={imageSrc} setImageSrc={setImageSrc} role={"admin"} customerNumber={selectedChat} />
+          messages && <MessageBox setrecordingDelete={setrecordingDelete} currentConversation={currentConversation} messages={messages} message={message} setmessage={setmessage} setChatOpen={setChatOpen} handleSendMessage={handleSendMessage} startRecording={startRecording} imageSrc={imageSrc} setImageSrc={setImageSrc} role={"admin"} customerNumber={selectedChat} />
           :""
           }
         
