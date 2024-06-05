@@ -1,16 +1,25 @@
-import React from 'react';
-import Lottie from "lottie-react";
-import Recording from "./Recording2.json"
+import React, { useEffect, useRef, useState } from 'react';
 
 const LottieAnimation = () => {
-    const defaultOptions = {
-        loop: true,
-        autoplay: true,
-        animationData: Recording,
-       
-    };
+    const [isClient, setIsClient] = useState(false);
+    const lottieContainer = useRef(null);
 
-    return <Lottie options={defaultOptions} height={400} width={400} className='w-[30px] h-[40px] ' />;
+    useEffect(() => {
+        setIsClient(true);
+        if (isClient) {
+            import('lottie-web').then((lottie) => {
+                lottie.loadAnimation({
+                    container: lottieContainer.current,
+                    renderer: 'svg',
+                    loop: true,
+                    autoplay: true,
+                    animationData: require('./Recording2.json'),
+                });
+            });
+        }
+    }, [isClient]);
+
+    return <div ref={lottieContainer} className='w-[30px] h-[40px] '/>;
 };
 
 export default LottieAnimation;
