@@ -1,12 +1,12 @@
 import React from 'react';
 import Lottie from 'react-lottie';
-import animationData from 'Recording2.json';
+import Recording from "./Recording2.json"
 
 const LottieAnimation = () => {
     const defaultOptions = {
         loop: true,
         autoplay: true,
-        animationData: animationData,
+        animationData: Recording,
        
     };
 
