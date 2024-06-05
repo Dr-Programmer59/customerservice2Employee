@@ -9,7 +9,9 @@ import { useDispatch, useSelector } from 'react-redux'
 import { addMember, fetchEmployees } from './service/api';
 import { FaFileImage } from "react-icons/fa";
 import Recording from "./Recording2.json"
-
+const LottieAnimation = dynamic(() => import('./LottieAnimation'), {
+    ssr: false,
+});
 import { IoMdMic } from "react-icons/io";
 import { RiDeleteBin6Line } from "react-icons/ri";
 
@@ -232,7 +234,7 @@ useEffect(() => {
                         <>
                             <div class="absolute inset-y-0 end-0 pr-4  flex items-center  ">
                                 <button onClick={() => { startRecording(); setisRecording(!isRecording); console.log("preessed") }}>
-                                <IoMdMic className='w-[35px] h-[35px]' />
+                                    <LottieAnimation  />
                                 </button>
 
                             </div>
