@@ -8,7 +8,6 @@ import { storage } from '@/components/firebase';
 
 import { ref, uploadBytesResumable, getDownloadURL } from "firebase/storage";
 import { createConversation, getAdminConversation, getConversation, getEmployeeConversation, getMessages, newMessages } from '@/components/service/api';
-import { v4 as uuidv4 } from 'uuid';
 
 
 
@@ -41,11 +40,7 @@ const [recordingDelete, setrecordingDelete] = useState(false)
   };
 
 
-  useEffect(() => {
-    socket.emit("")
-  
-    
-  }, [])
+
   
   const fetchContacts=async ()=>{
     let conversationdata=await getEmployeeConversation(user._id);
@@ -92,8 +87,8 @@ const [recordingDelete, setrecordingDelete] = useState(false)
   
   const handleUploadAudio = (blob) => {
     if (blob) {
-      const randomId = uuidv4();;
-      const file = new File([blob], `${randomId}.wav`, { type: 'audio/wav' });
+      
+      const file = new File([blob], `audio.wav`, { type: 'audio/wav' });
       const storageRef = ref(storage, `audio/${file.name}`);
       const uploadTask = uploadBytesResumable(storageRef, file);
 
@@ -243,8 +238,8 @@ const [recordingDelete, setrecordingDelete] = useState(false)
   }
   const handleUpload = () => {
     if (imageSrc) {
-      const randomId = uuidv4();;
-      const storageRef = ref(storage, `images/${randomId}-${imageSrc.name}`);
+
+      const storageRef = ref(storage, `images/${imageSrc.name}`);
       const uploadTask = uploadBytesResumable(storageRef, imageSrc);
 
       uploadTask.on(
