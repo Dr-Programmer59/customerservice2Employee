@@ -9,7 +9,7 @@ import { useDispatch, useSelector } from 'react-redux'
 import { addMember, fetchEmployees } from './service/api';
 import { FaFileImage } from "react-icons/fa";
 import dynamic from 'next/dynamic';
-import Recording from "./Recording2.json"
+
 const LottieAnimation = dynamic(() => import('./LottieAnimation'), {
     ssr: false,
 });
@@ -200,9 +200,16 @@ useEffect(() => {
 
                 </div>
                 <input
-                    onChange={(e) => setmessage(e.target.value)}
-                    value={message}
-                    type="text" id="input-group-1" class="  bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full h-full p-3 ps-10 pl-[50px] pr-[30px]  dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-blue-500 dark:focus:border-blue-500" placeholder="Type a message " />
+                        onChange={(e) => setmessage(e.target.value)}
+                        value={message}
+
+                        onKeyDown={(event) => {
+                            if (event.key === 'Enter') {
+                                event.preventDefault();  // Optional: Prevent the default action (form submission, etc.)
+                                handleSendMessage();
+                            }
+                        }}
+                        type="text" id="input-group-1" class="  bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full h-full p-3 ps-10 pl-[10vh] pr-[30px]  dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-blue-500 dark:focus:border-blue-500" placeholder="Type a message " />
                 
                 {
 

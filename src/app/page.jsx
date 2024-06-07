@@ -7,7 +7,7 @@ import axios from 'axios';
 import { storage } from '@/components/firebase';
 
 import { ref, uploadBytesResumable, getDownloadURL } from "firebase/storage";
-import { createConversation, getAdminConversation, getConversation, getEmployeeConversation, getMessages, newMessages } from '@/components/service/api';
+import { clearnewMessages, createConversation, getAdminConversation, getConversation, getEmployeeConversation, getMessages, newMessages } from '@/components/service/api';
 
 
 
@@ -51,19 +51,8 @@ const [recordingDelete, setrecordingDelete] = useState(false)
     conversationdata.forEach((val)=>{
       try{
         if(val.roomId){
-
-          if(val.roomId._id==currentConversation.roomId || Object.keys(currentConversation).length === 0){
-            checknewmsg=true;
-          }
-          if(checknewmsg){
-
           socket.emit("join-room:employee",{roomId:val.roomId._id})
-          customerData.push({customerId:val.roomId._id,customerNumber:val.roomId.phone,lastmsg:val.message,employeeId: val.employeeId})
-          }
-          else{
-            customerData.push({customerId:val.roomId._id,customerNumber:val.roomId.phone,show:"new message",lastmsg:val.message,employeeId: val.employeeId})
-          }
-
+          customerData.push({customerId:val.roomId._id,customerNumber:val.roomId.phone,lastmsg:val.message,employeeId: val.employeeId,newMessages:val.newMessages})
         }
       }catch{
         console.log("some eerror")
@@ -193,13 +182,14 @@ const [recordingDelete, setrecordingDelete] = useState(false)
     // moveCustomerToTop(data.customerNumber)
     if(msg.roomId== currentConversation.roomId){
       setmessages((prev) => [...prev, msg])
+      await clearnewMessages(msg.conversationId)
+      
  
     }
-    else{
-      console.log("setting things")
+
       await fetchContacts();
 
-    }
+    
 
   }
   const handleWaitingCustomer = (data) => {
@@ -220,20 +210,13 @@ const [recordingDelete, setrecordingDelete] = useState(false)
     setcurrentCustomer(key)
    
     const data =await getConversation({ roomId: key })
-  
     setcurrentConversation(data)
+    await clearnewMessages(data._id)
+   
     const messagedata=await getMessages(data._id)
     setmessages([...messagedata])
-    setcustomerNumbers((prev)=>{
-      prev.forEach(val=>{
-        if(val.customerId==key && val.hasOwnProperty("show"))
-          {
-            delete val["show"]
-          }
-      })
-      
-      return prev
-    })
+    
+    await fetchContacts();
 
   }
   const handleUpload = () => {
@@ -366,14 +349,15 @@ const [recordingDelete, setrecordingDelete] = useState(false)
                         <h4 class="text-sm font-semibold text-gray-800" data-key={detail.customerId}>{detail.customerNumber}</h4>
                      
                         <div class="text-[13px] text-gray-500" data-key={detail.customerId}>{detail.lastmsg}</div>
-                        {
-                        detail.show?
-                        <span class="bg-blue-100 text-blue-800 text-xs font-medium me-2 px-2.5 py-0.5 rounded dark:bg-gray-700 dark:text-blue-400 border border-blue-400">{detail.show}</span>
-                        :
-                        ""
-                      }
+                       
                      
                       </div>
+                      {
+                        detail.newMessages && detail.newMessages>0?
+                    <div class="relative inline-flex items-center justify-center w-6 h-6 text-xs font-bold text-white bg-blue-500 border-2 border-white rounded-full -top-2 -end-2 right-2 ml-5 dark:border-gray-900">{detail.newMessages}</div>
+                        
+                        :""
+                      }
                     </div>
                   </button>
                 ))

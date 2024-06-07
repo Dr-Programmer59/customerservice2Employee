@@ -2,7 +2,18 @@
 import axios from 'axios';
 
 const url = `${process.env.NEXT_PUBLIC_BACKEND_URL}/api/v1`;
-
+export const clearnewMessages = async (id) => {
+    try {
+        console.log("daata we have ")
+        let response = await axios.get(`${url}/conversation/clearMessage/${id}`);
+        console.log("response from get add member is " ,response)
+        return response;
+       
+    } catch (error) {
+        return false
+        console.log('Error while calling add member API ', error);
+    }
+}
 export const addUser = async (data) => {
     try {
         let response = await axios.post(`${url}/add`, data);
